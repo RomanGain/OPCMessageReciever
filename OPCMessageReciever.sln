@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPCMessageReciever", "OPCMessageReciever\OPCMessageReciever.csproj", "{172EDA1A-A445-4CC7-B8FE-1225EEA79FF2}"
 EndProject

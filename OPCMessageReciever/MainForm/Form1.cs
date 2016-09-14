@@ -79,14 +79,18 @@ namespace OPCMessageReciever
                     //MessageBox.Show("WTF");
                     TcpClient client = listner.AcceptTcpClient();
                     StreamReader sr = new StreamReader(client.GetStream());
+
+                    char underline = '_';
+      
                     string fullVarFromClient = sr.ReadLine();
+                    int num_of_symbol = fullVarFromClient.LastIndexOf(underline);
 
                     //--------------------------
                     string varFromClientBegin = fullVarFromClient.Remove(fullVarFromClient.Length - 3);
                     string cut_type = fullVarFromClient.Remove(0, fullVarFromClient.Length - 3);
-                    string varFromClient_onlyCommand = varFromClientBegin.Remove(varFromClientBegin.Length - 6);
-                    MessageBox.Show("fullVarFromClient = " + fullVarFromClient + "\n" + "varFromClientBegin = " + varFromClientBegin + "\n" + "cut_type = " + cut_type + "\n" + "varFromClient_onlyCommand = "+ varFromClient_onlyCommand);
-
+                    string varFromClient_onlyCommand = fullVarFromClient.Substring(0,num_of_symbol);
+                    //string varFromClient_onlyCommand = varFromClientBegin.Remove(varFromClientBegin.Length - 6);
+                    //MessageBox.Show("fullVarFromClient = " + fullVarFromClient + "\n" + "varFromClientBegin = " + varFromClientBegin + "\n" + "cut_type = " + cut_type + "\n" + "varFromClient_onlyCommand = "+ varFromClient_onlyCommand);
                     //--------------------------
                     if (incomingMessagesTable.Rows.Count >= max_number_of_notes)
                     {
@@ -121,13 +125,13 @@ namespace OPCMessageReciever
                             listView1.Items[index].SubItems.Add(incomingMessagesTable.Rows[listCounter - 1][1].ToString()); // Добавление Сообщения в listView 
                             listView1.Items[index].SubItems.Add(incomingMessagesTable.Rows[listCounter - 1][2].ToString()); // Добавление времени в listView 
                             listView1.Items[index].SubItems.Add(incomingMessagesTable.Rows[listCounter - 1][3].ToString()); // Добавление Типа сообщения в listView 
-                            AttentionShow(cut_type, varFromClient_onlyCommand, index, ref countErrors, ref countExceptions);
+                            AttentionShow(cut_type, varFromClient_onlyCommand, index, ref countErrors, ref countExceptions); 
                             listView1.Items[index].SubItems.Add(incomingMessagesTable.Rows[listCounter - 1][4].ToString()); // Добавление приложения в listView 
                             ++listCounter;
                         }
                     }
 
-                    LogWrighter(fullVarFromClient, varFromClient_onlyCommand);
+                    LogWrighter(fullVarFromClient, varFromClient_onlyCommand, ProgramCondition(varFromClientBegin));
                     client.Close();
                 }
                 catch (System.IO.IOException io)
@@ -284,28 +288,28 @@ namespace OPCMessageReciever
         }
 
         //----------------------------Запись в лог-------------------------------------------
-        public void LogWrighter(string fullVarFromClient, string varFromClient_onlyCommand)
+        public void LogWrighter(string fullVarFromClient, string varFromClient_onlyCommand, string app_name)
         {
             string cut_type = fullVarFromClient.Remove(0, fullVarFromClient.Length - 3);
             switch (cut_type)
             {
                 case "inf":
-                    lw.Info(varFromClient_onlyCommand);
+                    lw.Info(app_name + " - " + varFromClient_onlyCommand);
                     break;
                 case "wrn":
-                    lw.Warning(varFromClient_onlyCommand);
+                    lw.Warning(app_name + " - " + varFromClient_onlyCommand);
                     break;
                 case "err":
-                    lw.Error(varFromClient_onlyCommand);
+                    lw.Error(app_name + " - " + varFromClient_onlyCommand);
                     break;
                 case "dbg":
-                    lw.Debug(varFromClient_onlyCommand);
+                    lw.Debug(app_name + " - " + varFromClient_onlyCommand);
                     break;
                 case "ftl":
-                    lw.Fatal(varFromClient_onlyCommand);
+                    lw.Fatal(app_name + " - " + varFromClient_onlyCommand);
                     break;
                 default:
-                    lw.Info(varFromClient_onlyCommand);
+                    lw.Info(app_name + " - " + varFromClient_onlyCommand);
                     break;
             }
         }
@@ -373,22 +377,6 @@ namespace OPCMessageReciever
             string program_title = varFromClientBegin.Substring(num_of_symbol + 1);
 
             return program_title;
-            //string ProgramTitle = varFromClientBegin.Remove(0, varFromClientBegin.Length - 6);
-
-            //switch (ProgramTitle)
-            //{
-            //    case "DcCore":
-            //        return ProgramTitle;
-            //        break;
-            //    case "cAdmin":
-            //        ProgramTitle = "DcAdmin";
-            //        return ProgramTitle;
-            //        break;
-            //    default:
-            //        ProgramTitle = "Неизвестно";
-            //        return ProgramTitle;
-            //        break;
-            //}
         }
         //-----------------------------------------------------------------------
 
@@ -570,7 +558,7 @@ namespace OPCMessageReciever
         
         public void Error(string send_message)
         {
-            log.Error(send_message);
+            log.Error( send_message);
         }
 
         public void Info(string send_message)
